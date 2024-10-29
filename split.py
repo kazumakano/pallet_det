@@ -4,6 +4,7 @@ from glob import glob
 import yaml
 import script.utility as util
 
+MIN_ANNOT_NUM = 5
 
 def split(src_dirs: list[str], tgt_dir: str) -> None:
     for m in ("train", "validate", "test"):
@@ -20,8 +21,6 @@ def split(src_dirs: list[str], tgt_dir: str) -> None:
         img_files = util.random_split(glob(path.join(d, "original/*")), (0.8, 0.1, 0.1))
         for i, m in enumerate(("train", "validate", "test")):
             for img_file in img_files[i]:
-                os.symlink(img_file, path.join(tgt_dir, m, "images/", path.basename(img_file)))
-
                 annot_file_name = path.splitext(path.basename(img_file))[0] + ".txt"
                 with open(path.join(d, "yolo/annotations/", annot_file_name)) as f:
                     annot = []
@@ -29,8 +28,10 @@ def split(src_dirs: list[str], tgt_dir: str) -> None:
                         l = l.split(" ")
                         if l[0] in pallet_cls_idx_strs:
                             annot.append("0 " + " ".join(l[1:]))
-                with open(path.join(tgt_dir, m, "labels/", annot_file_name), mode="w") as f:
-                    f.writelines(annot)
+                if len(annot) >= MIN_ANNOT_NUM:
+                    os.symlink(img_file, path.join(tgt_dir, m, "images/", path.basename(img_file)))
+                    with open(path.join(tgt_dir, m, "labels/", annot_file_name), mode="w") as f:
+                        f.writelines(annot)
 
     with open(path.join(tgt_dir, "data.yaml"), mode="w") as f:
         yaml.safe_dump({
