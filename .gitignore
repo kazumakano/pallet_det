@@ -2,4 +2,4 @@ config/
 model/
 result/
 script/__pycache__/
-yolov8n.pt
+yolo*n.pt
