@@ -35,7 +35,7 @@ def _predict_by_file(model_file: str, result_dir: str, vid_file: str) -> None:
             results: YoloResults = model(img)[0]
 
             for b in results.boxes:
-                writer.writerow((r["id"], b.xywh[0, 0].item(), b.xywh[0, 1].item(), b.xywh[0, 2].item(), b.xywh[0, 3].item()))
+                writer.writerow((int(r["id"]), b.xywh[0, 0].item(), b.xywh[0, 1].item(), b.xywh[0, 2].item(), b.xywh[0, 3].item()))
 
     cap.release()
 
