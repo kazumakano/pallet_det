@@ -4,9 +4,8 @@ from glob import glob
 import yaml
 import script.utility as util
 
-ANNOT_NUM_THRESH = 5
 
-def split(src_dirs: list[str], tgt_dir: str) -> None:
+def split(exclude_annot_num: int, src_dirs: list[str], tgt_dir: str) -> None:
     for m in ("train", "validate", "test"):
         for t in ("images", "labels"):
             os.makedirs(path.join(tgt_dir, m, t))
@@ -28,7 +27,7 @@ def split(src_dirs: list[str], tgt_dir: str) -> None:
                         l = l.split(" ")
                         if l[0] in pallet_cls_idx_strs:
                             annot.append("0 " + " ".join(l[1:]))
-                if len(annot) >= ANNOT_NUM_THRESH:
+                if len(annot) > exclude_annot_num:
                     os.symlink(img_file, path.join(tgt_dir, m, "images/", path.basename(img_file)))
                     with open(path.join(tgt_dir, m, "labels/", annot_file_name), mode="w") as f:
                         f.writelines(annot)
@@ -48,6 +47,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--src_dirs", nargs="+", required=True, help="specify list of source dataset directories", metavar="PATH_TO_SRC_DIR")
     parser.add_argument("-t", "--tgt_dir", required=True, help="specify target dataset directory", metavar="PATH_TO_TGT_DIR")
+    parser.add_argument("-n", "--exclude_annot_num", default=-1, type=int, help="maximum number of annotations to exclude images", metavar="NUM")
     args = parser.parse_args()
 
-    split(args.src_dirs, args.tgt_dir)
+    split(args.exclude_annot_num, args.src_dirs, args.tgt_dir)
