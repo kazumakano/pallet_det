@@ -34,3 +34,7 @@ def random_split(files: list[str], prop: tuple[float, float, float], seed: int =
         test_files.append(files[i])
 
     return train_files, val_files, test_files
+
+# same as seclage
+def xywh2ltrb(x: float, y: float, w: int, h: int) -> tuple[int, int, int, int]:
+    return int(x - w / 2), int(y - h / 2), int(x + w / 2), int(y + h / 2)
